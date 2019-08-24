@@ -1,0 +1,326 @@
+Oscar Tark 06/04/19
+
+Intel Syntax:
+------------------------
+
+operation <destination>, <source>
+
+for example:
+
+eax = 2
+rdi = 3
+
+cmp : eax, rdi
+jle 0x0000
+
+is equal to
+
+compare 2 < 3
+jle 0x0000
+
+Basic Hexadecimal notation:
+
+------------------------
+
+0-9: represents 0-9
+A-F: represents 10-15
+
+Processor Basics:
+
+------------------------
+
+Registers -> Processor Variables (Mostly use to read or write data)
+
+MEMORY SEGMENTATION
+
+------------------------
+
+Segments below are compiled to have the following structure:
+
+Low addresses--->--------------
+		 Text
+		 --------------
+		 Data
+		 --------------
+		 Bss
+		 --------------
+		 Heap
+		 (going down)
+
+		 ^(going up)
+		 Stack
+		 --------------
+
+Memory segments are divided into five sections:
+
+> text/code : containing code (in assembly). This is static and read only. [FIXED SIZE upon allocation]
+	      this section's execution is non linear ex. jump calls
+> data : containing initialized static/global variables. [FIXED SIZE???] ex. variables initialized with a value ex. int i = 9;
+> bss  : containing uninitialized static/global variables. [FIXED SIZE???] ex variables not initialized with a value ex. int i;
+> heap : Memory control structure [VARIABLE SIZE] (Allocated using new ...; or malloc();) [Moves from lower
+	 to higher addrs] !CONTAINS VARIABLE VALUES!
+> stack: Memory control structure [VARIABLE SIZE IN BETWEEN THE PREALLOCATED STACK BOUNDS SET BY THE OS FOR
+	 THE PROGRAM. THIS STACK MEMORY IS ALLOCATED BY THE OS ON THE INITIALIZATION OF THE PROGRAM. AKA THE
+	 SIZE OF THE OVERALL STACK ALLOCATED FOR A SPECIFIC PROGRAM IS FIXED AND DETERMINED BY THE OS]
+	 which stores function variables and context. Think of it as
+	 knowing which function has what(remembering) variables are passed to a function
+	 and where to return the EIP to after executing the
+	 function execution. [Moves from higher addrs to lower addrs]
+	 !CONTAINS VARIABLE REFERENCES!
+
+> Think of the heap=what and stack=where.
+> Think of it also as stack as a stack of bricks and heap as a heap of bricks, in a stack of bricks the only
+  way to remove the bolwo one is to remove the ones ontop and the new ones are put ontop, same analogy for the heap just in the real world of a heap of bricks you can reach out and take out any brick.
+
+HEAP IS AN OPEN POOL OF MEMORY
+
+Video Stack vs Heap: https://www.youtube.com/watch?v=_8-ht2AKyH4
+
+Visual example of a stack frame & stack:
+Using a FILO methodology: first in last out. usefull when pushing a function then returning from it.
+
+[STACK
+	[Stack frame 1: MSOFFICE
+		[function start		
+			[vars of function start]	<- EBP
+			return;
+		]			<- SFP (upon end of funtion or return;)
+	]
+	...
+]					<- ESP
+
+
+> Function prologue/Procedure prologue: Instructions that set up the stack frame(Memory for function). The base pointer to the
+  beginning of the frame to start execution of the EIP and the stack pointer to the end for when to pop the
+  function and return to the previous.
+
+> call: Calls function but also sets nexti after the call(OR so the next instruction after the current $EIP)
+  in the current function as the return address	once the previous function pops.
+
+HEAP
+------------------------
+Allocated through:
+
+malloc(size);
+
+This returns a void pointer. If it could not allocate memory the contained value will be 0.
+
+Value can be seen through gdb examination of the memory address.
+
+Deallocated through:
+
+free(*pointer);
+
+MEMORY ELEMENTS
+------------------------
+
+
+VALUE USED IN EXAMPLES: 90AB12CD
+>Big Endian: In big endian, you store the most significant byte in the smallest address:
+Basically is as if we stored the string "Shit" as itself. The most significant bit helps determine the meaning
+
+Address	Value
+1000	90
+1001	AB
+1002	12
+1003	CD
+
+
+>Little Endian: In little endian, you store the least significant byte in the smallest address:
+This is the opposite of Big endian. basically the most important letter of the word "Shit" is stored backwards
+as "tihS"
+
+Used by the intel x86 processor
+
+Address	Value
+1000	CD
+1001	12
+1002	AB
+1003	90
+
+
+GCC
+------------------------
+
+gcc <filename>
+gcc -g <filename> -o <output name>
+
+-g allows for code to be visible in the final binary. (includes extra debugging info)
+
+GDB (GNU DEBUGGER)
+------------------------
+
+gdb ./binaryfilename
+set disassembly <type: intel or at&t>
+break <function name>
+
+The following are CPU register abreviations. REMEMBER THESE ARE NOT MEMORY SLOTS IN THE RAM BUT RATHER RESIDE
+ON THE CPU AND POINT TO MEMORY:
+
+(Registers 1-4) -> General purpose registers, used to store variables for the CPU to use
+EAX : Execution Accumulator register
+ECX : Execution Counter register
+EDX : Execution Data register
+EBX : Execution Base register (frame pointer: points to beginning of function frame)
+
+(Registers 4-8) -> Pointers and indexes
+EBP : (I am here in the Stack) Execution Base pointer (points to local variables for functions and parameter variables for the function frame) [Current value of ESP is saved to EBP while ESP is shifted to the frame above AKA the next function to call. EBP acts as the SFP]
+ESP : Execution Source pointer (Address of the end of the stack)
+EDP : Execution Destination pointer
+EIP : Execution Instruction pointer (Current executing instruction)
+SFP : Saved Frame Pointer (Used to go back to previous function(SET EBP to previous execution state) or state after a functions execution. think of it as "return;" this sets the return address for EIP to the next instruction after the call to the function to continue on executing the function).
+ESI : Execution Source Index (Technically a pointer) used usually when data needs to be read or written
+EDI : Execution Destination Index (Technically a pointer) used usually when data needs to be read or written
+
+EFLAGS : Contain flags retaining to the value of a previous comparison, addition etc. (Carry, Parity, Zero, Sign). Eflags are meant to contain the current state
+of the processor
+
+x64: $RBP, $RSP
+
+info register $<register> : gets information about a specific register
+
+x/4xw $register <-- Examine/(4 after starting from $register)hexadecimal word
+
+Examines can be(after 4 above):
+
+i : integer
+d : decimal
+x : Hexadecimal
+o : Octal
+u : Unsigned int
+t : binary
+s : string
+
+
+Words can be(after x above) WORDS ARE 4 BYTES!
+
+w : word -  (4bytes)
+d : doubleword - (4bytes) Usually the notation of a single word is 2 and not 4 bytes
+h : halfword - Half of a word (2bytes)
+g : giant - Large word(8bytes)
+b : byte - Single byte of a word(1byte)
+
+-----------
+
+TOPTIP!: if you want to find an unsigned word mathematically instead of x/uw $eip then you must get 4 bytes of unsigned bytes. Then reverse them and use the followingas an example:
+
+(gdb) x/4ub $rip
+0x555555554652 <looper+8>:	199	69	252	20
+(gdb) x/uw $rip
+0x555555554652 <looper+8>:	352077255
+
+Find it mathematically by doing the calculation 20*(256³) + 252*(256²) + 69*(256³) + 199*(256*0)
+
+you may use the program bc to do it. 
+
+bc -ql [file with maths inside]
+
+------------
+
+If you want to see a list of instructions as such:
+
+   0x804842d <main+34>:	call   0x80482e0 <puts@plt>
+   0x8048432 <main+39>:	add    esp,0x10
+   0x8048435 <main+42>:	add    DWORD PTR [ebp-0xc],0x1
+   0x8048439 <main+46>:	cmp    DWORD PTR [ebp-0xc],0xa
+   0x804843d <main+50>:	jle    0x8048425 <main+26>
+   0x804843f <main+52>:	mov    eax,0x0
+   0x8048444 <main+57>:	mov    ecx,DWORD PTR [ebp-0x4]
+   0x8048447 <main+60>:	leave  
+   0x8048448 <main+61>:	lea    esp,[ecx-0x4]
+   0x804844b <main+64>:	ret    
+
+then you must:
+
+x/10i $ebp
+
+instead of putting xw for type of output and bytelength we put "i" which stands for instructions so basically:
+
+examine/10instructions from $register
+
+
+--------------------------------
+
+Print $register allows you to create a register variable to examine the variable is created automatically on its own.
+
+Print $ebp
+$2 = $ebp
+
+e/xw $2
+
+
+---------------------------
+DISSASSEMBLE FUNCTION:
+
+<DUMP>
+
+disass is a shorthand for disassemble!
+
+disass <function>
+
+ex.:
+
+disass main
+
+
+---------------------
+Address of and pointers
+
+There are three ways of using pointers:
+
+int_ptr = normal usage. returns or uses the address of the address or value it is pointing to.
+
+-----x----
+
+*int_ptr = dereference. This returns/pointsto the VALUE of the referenced address instead of the actual address.
+
+EX.
+>int_var=5;
+>int_ptr=&int_var;
+>printf(*int_ptr);
+
+>>5
+
+&int_ptr = addressof. This returns the address or so uses the address of the actual pointer in memory and not what it is referencing/pointing to.
+
+EX.
+>int_var=5;
+>int *int_ptr;
+>int_ptr=&int_var;
+>printf(&int_ptr);
+>printf(&int_var);
+
+>>0x1
+>>0x33
+
+-----------
+
+Pointers only contain an adress to point to and whilst examining will only show the data of the
+element they are pointing to. For ex:
+
+addr1 : str_a = char[20];
+----- : pointer = str_a;
+
+x/xw pointer
+addr1
+
+x/xw str_a
+addr1
+
+To see the actual value or data for the pointer in its stack frame we must use the addr of operator &. Now:
+
+x/xw &pointer
+addr2
+
+x/xw str_a
+addr1
+
+-----------------
+DEBUGGING:
+
+For a stack trace incase of an unexpected crash of the program in GDB we can use the keyword "where" to show
+us the stack trace of last instructions executed till $eip.
+
+-----------------
+FUNCTION STRUCTURES AND FRAMES:
+

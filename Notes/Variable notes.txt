@@ -1,0 +1,349 @@
+Oscar Tark 06/04/2019
+
+Bitwise operations:
+-------------------
+
+Bitwise operations are abit confusing as per se, The comparison is between the bits, even if a result of an AND/OR is true the operation is continued till
+all results are created. How does one calculate the truth table according to bitwise operators? we obviously use bits using the binary positional system.
+
+(7 | 4)
+ 
+  0111 (7)
++ 0100 (4)
+______
+  0111 (7)
+
+Result is 0111 which denotes 7 So 7 will be used. This can be useful if 4 is read only in a file operation but 7 is read and write. So 7 will take precedence
+as it is higher and in a bitwise operation result in 7.
+
+Binary:
+---------------------------
+
+Binary is a positional system. which means the position of the 0 or 1 represents the actual number to be added. EX:
+
+01011010
+
+128 | 64 | 32 | 16 | 8 | 4 | 2 | 1
+ 0  | 1  | 0  | 1  | 1 | 0 | 1 | 0
+
+As you may see The top part represents positions based on a 2² numbering system
+
+Now let's get what this binary number represents:
+
+(128*0) + (64*1) + (32*0) + (16*1) + (8*1) + (4*0) + (2*1) + (0*1)
+
+> In order to do the opposite operation say find 49 we must do the following along the same notation and table:
+
+128 | 64 | 32 | 16 | 8 | 4 | 2 | 1
+0   | 0  | 1  | 1  | 0 | 0 | 0 | 1
+
+32+16+1 = 49
+
+Basic operators % (Modulo):
+---------------------------
+
+This operator is about taking the remained after a division so:
+
+a=13;
+a%5=3
+
+13/5=2 with a remainder of 3
+
+Example:
+
+5%2 = 1;
+
+why? say you have a pizza. That is 5 slices. the remainder is 1. Because you remove 2. then you can remove two more but then only 1 remains out of 5
+You cannot remove 2 anymore so the remainder is 1.
+
+Incrementation operators:
+-------------------------
+
+++a, a++
+
+++a will increment a before any other arithmentic operations, whilst a++ will execute any arithmetic operations with a higher value before incrementing
+a.
+
+Example:
+
+a=15
+a++*2; = 30
+++a*2; = 34
+
+
+Unsigned and Signed values.
+---------------------------
+>Signed values can hold both a negative and a positive value. As the word suggest they have a SIGN. + or -.
+>Unsigned values do not hold negative values but only positive values. This makes them bigger because they don't need a bit to flag if they are positive or
+negative and can use that bit to store more number values
+
+How do we represent signed variables?
+
+There are three methods:
+
+The first two are not commonly used as they have certain setbacks:
+
+Here are the bits we will be using. We will be using a 3bit system or so a 2³=8 possible values.
+
+
+000
+001
+010
+011
+100
+101
+110
+111
+
+>>1st method:
+
+Sign and magnitude:
+
+Here we devide our numbers in half. Positive numbers are represented by a flag on the left of the 3 bit number 0 and the negative by a 1:
+
+000|0
+001|1
+010|2
+011|3
+100|-0
+101|-1
+110|-2
+111|-3
+
+How many values we can store are limited by half and we have a -0. -there are also hardware issues with this.
+
+
+>>2nd method:
+
+one's compliment:
+
+In this method we have a positive value and to get the negative value we just flip the bits.
+
+000|0
+001|1
+010|2
+011|3
+100|-3
+101|-2
+110|-1
+111|-0
+
+Here we still have a negative 0 problem! and there are hardware issues realted to this method so it is not very common. But we don't have a problem
+of a wasted bit!
+
+>>Third method:
+
+Two's compliment (BEST AND EASIEST!!!):
+
+In this method we take the bit such as 000 and it's negative which is AKA flipped bits so 111 and add 1 EX:
+
+100111000100->011000111011
+
+SO
+
+0110001110011+1 = 11000111100
+
+11000111100 + 100111000100 = 1000000000000
+
+
+Now we have a carry bit of one ->
+
+1000000000000
+
+but as our system supports only 11 bits we cross out the 1 and we have:
+00000000000 so 0 is always 0 there is no -0!
+
+So for example 1:
+
+001->110
+
+¹
+110
++ 1
+---
+001
+
+so 1001 is -1
+
+000|0
+001|1
+010|2
+011|3
+100|-0
+101|-1
+110|-2
+111|-3
+
+--------------------------------
+
+STRINGS (FORMAT PARAMETERS/FORMATTED STRINGS):
+
+We can display certain elements with strings that are relevant to binary formats these are:
+
+ALL OF THESE FORMAT ELEMENTS TAKE VALUES AND NOT POINTERS! EXCEPT FOR STRINGS
+
+%p: pointer data
+%d: Decimal
+%u: Unsigned decimal
+%x: Hexadecimal
+
+%s: String
+%n: Number of bytes written so far to a specific memory address.
+
+EX:
+
+int A=0;
+printf("Hi %d", A);
+
+In order to display field widths within memory addresses etc. we can put a number before the format descriptor as such:
+
+char string[20];
+strcpy(string, "sample");
+printf("[string] %s Address %08x", string, &string);
+
+>>OutPut:
+
+sample Address 000000001
+
+Remember that a char array always ends with char[n] = 0; where the 0 represents the end of the string. or so a null byte
+
+---------------
+
+POINTERS & TYPES:
+
+Topic: arrays and pointers:
+
+
+Pointers have types so when we point to an array we point to the first element ex:
+
+char char_array[3] = {'a','b','c'}; 
+  		       ^
+
+Since an array has a type when we increment the pointer it increments by the size of the type it was
+declared in for example:
+
+char* char_pointer //This is(char is) 1 byte and will be incremented by one byte in memory when we increment the pointer in order to point to
+		   //the next char
+
+int* int_pointer   //This is(int is) 4 bytes and will be incremented by 4 bytes in memory.
+
+See pointertypes2.c & pointertypes.out and see the memory address increments.
+
+----------------
+
+FUNCTION POINTERS:
+
+Function pointers just like variable pointers are just a variable that stors a memory location. This can be used to point to a variable or to a functions
+address, and are defined as such:
+
+int function1(int var){}
+
+int (*function_pointer) ();
+function_pointer = function_one;
+
+> Calling function pointers is pretty straightforward:
+
+value = function_pointer();
+
+> Sending variables to functions are simple as well:
+
+int a = 65;
+value = function_pointer(a)
+
+----------------
+
+STRUCTS:
+
+Structs are an interesting way of storing variables. It's many variables in a standard variable. Except it's size is fixed and the variables inside
+must be declared. It's storage is similar to that of an array.
+
+struct tm = {
+	int minutes,
+	int hours
+};
+
+Accessing the variables can be done in different ways. since a struct can be large, sending a copy to every function call especially if recursive or
+iterated can be a huge print in memory leading to a stack overflow. Generally its best to send a pointer to work on that instantiated singular copy.
+
+> Normal access:
+
+struct tm time;
+
+time.minutes = 14;
+time.hours = 55;
+
+> Pointer access:
+
+struct tm *time;
+
+time->minutes = 14;
+time->hours = 55;
+
+TIP: usually its better to assign using normal access. The -> accessor dereferences values automatically.
+
+> Hacky way:
+
+struct tm* time
+
+time = *((*int)time);
+
+the hacky way will point to the first value stored in the struct.
+
+STRUCT MEMORY STRUCTURE:
+
+Structs are stored as arrays except that there internal size and variables are predefined. All that can change are the values. Though so the memory
+structure is similar to that of an array. Variables do not have any padding between each other. Here is an example:
+
+Memory address		Variable	Value
+0x00000008		minutes		14
+0x00000012		hours		55
+
+-------------
+
+TIME FUNCTIONS:
+[time.h]
+
+Time functions are important in order to get times. These are contained in the time.h header file. All time starts at the epoch this is 1970. All functions
+return the number of seconds since 1970. Since that is a long time ago around 50 years, its best to use a unsigned long int in order to store the result
+since also time is not negative we could use the extra space of the sign bit.
+
+> Get current time from 1970
+
+unsigned long int time_ = time(0);
+
+> Get the actual time from the epoch seconds:
+
+time.h contains a struct called 'tm' to which we can store the results of our seconds to readable time conversion. We use a function called localtime_r
+in order to write the current time gotten in seconds with time(0) to our struct.
+
+unsigned long int time_;
+struct tm current_time;
+localtime_r(&current_time, time_);
+
+printf("%02d:%02d:%02s", current_time.hour, current_time.min, current_time.sec);
+
+The result should be as follows, depending on the current time:
+
+15:44:32
+
+> tm struct:
+
+You may see resources online on how the struct is made. or page 97 of book.pdf. This struct is imported from a header file <time.h>
+
+-------------
+
+RAND & SRAND : RANDOM NUMBER FUNCTIONS:
+[stdlib.h]
+
+Rand is important for randomization. It is important just like encryption to add a seed value. If this seed value is the same everytime the RAND() function
+will return the same randomized numbers so its important to change up the seed values. The best way ofcourse is by supplying the current time as the
+seed function. the SRAND() function initialized srand functionality and takes the seed. after which the rand function cn be called in order to generate a
+random integer.
+
+srand(time(0));
+printf("%d\n",rand);
+
+3134133
+4343414
+4343434
+3434343
